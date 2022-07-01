@@ -110,8 +110,8 @@ namespace Jellyfin.Naming.Tests.Video
                 files.Select(i => VideoResolver.Resolve(i, false, _namingOptions)).OfType<VideoFileInfo>().ToList(),
                 _namingOptions).ToList();
 
-            Assert.Single(result);
-            Assert.Equal(7, result[0].AlternateVersions.Count);
+            Assert.Equal(8, result.Count);
+            Assert.Empty(result[0].AlternateVersions);
         }
 
         [Fact]
@@ -183,6 +183,8 @@ namespace Jellyfin.Naming.Tests.Video
         [Fact]
         public void TestMultiVersion5()
         {
+            // not officially supported method of multi versions
+
             var files = new[]
             {
                 @"/movies/Iron Man/Iron Man.mkv",
@@ -199,11 +201,12 @@ namespace Jellyfin.Naming.Tests.Video
                 files.Select(i => VideoResolver.Resolve(i, false, _namingOptions)).OfType<VideoFileInfo>().ToList(),
                 _namingOptions).ToList();
 
-            Assert.Single(result);
-            Assert.Equal(7, result[0].AlternateVersions.Count);
+            Assert.Equal(2, result.Count);
+            Assert.Equal(6, result[0].AlternateVersions.Count);
             Assert.False(result[0].AlternateVersions[2].Is3D);
             Assert.True(result[0].AlternateVersions[3].Is3D);
             Assert.True(result[0].AlternateVersions[4].Is3D);
+            Assert.Equal("Iron Man-test", result[1].Name);
         }
 
         [Fact]
@@ -390,6 +393,28 @@ namespace Jellyfin.Naming.Tests.Video
         }
 
         [Fact]
+        public void TestMultiVersionEpisodeDontCollapse2()
+        {
+            // Test for false positive
+
+            var files = new[]
+            {
+                @"/TV/Dexter/Dexter - S01E01 One.mkv",
+                @"/TV/Dexter/Dexter - S01E02 Two.mkv",
+                @"/TV/Dexter/Dexter - S01E03 Three.mkv",
+                @"/TV/Dexter/Dexter - S01E04 Four.mkv",
+                @"/TV/Dexter/Dexter - S01E05 Five.mkv",
+            };
+
+            var result = VideoListResolver.Resolve(
+                files.Select(i => VideoResolver.Resolve(i, false, _namingOptions)).OfType<VideoFileInfo>().ToList(),
+                _namingOptions).ToList();
+
+            Assert.Equal(5, result.Count);
+            Assert.Empty(result[0].AlternateVersions);
+        }
+
+        [Fact]
         public void TestMultiVersionEpisode()
         {
             var files = new[]
@@ -404,6 +429,51 @@ namespace Jellyfin.Naming.Tests.Video
 
             Assert.Single(result);
             Assert.Single(result[0].AlternateVersions);
+        }
+
+        [Fact]
+        public void TestMultiVersionEpisodeMixedSeriesFolder()
+        {
+            var files = new[]
+            {
+                @"/TV/Dexter/Dexter - S01E01 - One.mkv",
+                @"/TV/Dexter/Dexter - S01E01 - One plus.mkv",
+                @"/TV/Dexter/Dexter - S01E02 - Two.mkv",
+                @"/TV/Dexter/Dexter - S01E03 - Three.mkv",
+                @"/TV/Dexter/Dexter - S02E01 - Ia.mkv",
+                @"/TV/Dexter/Dexter - S02E01 - I.mkv",
+                @"/TV/Dexter/Dexter - S02E02.mkv",
+            };
+
+            var result = VideoListResolver.Resolve(
+                files.Select(i => VideoResolver.Resolve(i, false, _namingOptions)).OfType<VideoFileInfo>().ToList(),
+                _namingOptions).ToList();
+
+            Assert.Equal(5, result.Count);
+            Assert.Single(result[0].AlternateVersions);
+            Assert.Empty(result[1].AlternateVersions);
+            Assert.Empty(result[2].AlternateVersions);
+            Assert.Single(result[3].AlternateVersions);
+            Assert.Empty(result[4].AlternateVersions);
+        }
+
+        [Fact]
+        public void TestMultiVersionEpisodeMixedSeasonFolder()
+        {
+            var files = new[]
+            {
+                @"/TV/Dexter/Season 2/Dexter - S02E01 - Ia.mkv",
+                @"/TV/Dexter/Season 2/Dexter - S02E01 - I.mkv",
+                @"/TV/Dexter/Season 2/Dexter - S02E02.mkv",
+            };
+
+            var result = VideoListResolver.Resolve(
+                files.Select(i => VideoResolver.Resolve(i, false, _namingOptions)).OfType<VideoFileInfo>().ToList(),
+                _namingOptions).ToList();
+
+            Assert.Equal(2, result.Count);
+            Assert.Single(result[0].AlternateVersions);
+            Assert.Empty(result[1].AlternateVersions);
         }
     }
 }
