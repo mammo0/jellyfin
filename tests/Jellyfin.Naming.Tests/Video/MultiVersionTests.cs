@@ -385,7 +385,7 @@ namespace Jellyfin.Naming.Tests.Video
             };
 
             var result = VideoListResolver.Resolve(
-                files.Select(i => VideoResolver.Resolve(i, false, _namingOptions)).OfType<VideoFileInfo>().ToList(),
+                files.Select(i => VideoResolver.Resolve(i, false, _namingOptions, false)).OfType<VideoFileInfo>().ToList(),
                 _namingOptions).ToList();
 
             Assert.Equal(5, result.Count);
@@ -407,7 +407,7 @@ namespace Jellyfin.Naming.Tests.Video
             };
 
             var result = VideoListResolver.Resolve(
-                files.Select(i => VideoResolver.Resolve(i, false, _namingOptions)).OfType<VideoFileInfo>().ToList(),
+                files.Select(i => VideoResolver.Resolve(i, false, _namingOptions, false)).OfType<VideoFileInfo>().ToList(),
                 _namingOptions).ToList();
 
             Assert.Equal(5, result.Count);
@@ -424,7 +424,7 @@ namespace Jellyfin.Naming.Tests.Video
             };
 
             var result = VideoListResolver.Resolve(
-                files.Select(i => VideoResolver.Resolve(i, false, _namingOptions)).OfType<VideoFileInfo>().ToList(),
+                files.Select(i => VideoResolver.Resolve(i, false, _namingOptions, false)).OfType<VideoFileInfo>().ToList(),
                 _namingOptions).ToList();
 
             Assert.Single(result);
@@ -446,7 +446,7 @@ namespace Jellyfin.Naming.Tests.Video
             };
 
             var result = VideoListResolver.Resolve(
-                files.Select(i => VideoResolver.Resolve(i, false, _namingOptions)).OfType<VideoFileInfo>().ToList(),
+                files.Select(i => VideoResolver.Resolve(i, false, _namingOptions, false)).OfType<VideoFileInfo>().ToList(),
                 _namingOptions).ToList();
 
             Assert.Equal(5, result.Count);
@@ -468,7 +468,26 @@ namespace Jellyfin.Naming.Tests.Video
             };
 
             var result = VideoListResolver.Resolve(
-                files.Select(i => VideoResolver.Resolve(i, false, _namingOptions)).OfType<VideoFileInfo>().ToList(),
+                files.Select(i => VideoResolver.Resolve(i, false, _namingOptions, false)).OfType<VideoFileInfo>().ToList(),
+                _namingOptions).ToList();
+
+            Assert.Equal(2, result.Count);
+            Assert.Single(result[0].AlternateVersions);
+            Assert.Empty(result[1].AlternateVersions);
+        }
+
+        [Fact]
+        public void TestMultiVersionEpisodeMixedSeasonFolderWithYear()
+        {
+            var files = new[]
+            {
+                @"/TV/Name (2020)/Season 1/Name (2020) - S01E01 - [ORIGINAL].mkv",
+                @"/TV/Name (2020)/Season 1/Name (2020) - S01E01 - [VERSION].mkv",
+                @"/TV/Name (2020)/Season 1/Name (2020) - S01E02 - [ORIGINAL].mkv",
+            };
+
+            var result = VideoListResolver.Resolve(
+                files.Select(i => VideoResolver.Resolve(i, false, _namingOptions, false)).OfType<VideoFileInfo>().ToList(),
                 _namingOptions).ToList();
 
             Assert.Equal(2, result.Count);
