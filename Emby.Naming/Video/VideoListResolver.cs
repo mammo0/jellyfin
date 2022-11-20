@@ -159,7 +159,7 @@ namespace Emby.Naming.Video
         private static string Grouper(string? s)
         {
             s ??= string.Empty;
-            var idx = s.LastIndexOf(" -"); // name doesn't come in with trailing space
+            var idx = s.LastIndexOf(" -", StringComparison.Ordinal); // name doesn't come in with trailing space
             return idx == -1 ? s : s[..idx];
         }
 
