@@ -494,5 +494,24 @@ namespace Jellyfin.Naming.Tests.Video
             Assert.Single(result[0].AlternateVersions);
             Assert.Empty(result[1].AlternateVersions);
         }
+
+        [Fact]
+        public void TestMultiVersionEpisodeMixedSeasonFolderWithYearAndDirtyNames()
+        {
+            var files = new[]
+            {
+                @"/TV/Name (2020)/Season 1/Name (2020) - S01E01 [BluRay-480p x264][AC3 2.0] - [ORIGINAL].mkv",
+                @"/TV/Name (2020)/Season 1/Name (2020) - S01E01 [BluRay-1080p x264][AC3 5.1]- [Remaster].mkv",
+                @"/TV/Name (2020)/Season 1/Name (2020) - S01E02 - [ORIGINAL].mkv",
+            };
+
+            var result = VideoListResolver.Resolve(
+                files.Select(i => VideoResolver.Resolve(i, false, _namingOptions, false)).OfType<VideoFileInfo>().ToList(),
+                _namingOptions).ToList();
+
+            Assert.Equal(2, result.Count);
+            Assert.Single(result[0].AlternateVersions);
+            Assert.Empty(result[1].AlternateVersions);
+        }
     }
 }

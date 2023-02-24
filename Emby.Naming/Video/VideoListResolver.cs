@@ -127,7 +127,7 @@ namespace Emby.Naming.Video
                 }
             }
 
-            var groupedList = mergeable.GroupBy(x=> Grouper(x.Name)).ToList();
+            var groupedList = mergeable.GroupBy(x=> Grouper(x.Name, namingOptions)).ToList();
             // take grouping list and make List<VideoInfo>
             var list = new List<VideoInfo>();
             foreach (var grouping in groupedList)
@@ -156,9 +156,13 @@ namespace Emby.Naming.Video
             return list;
         }
 
-        private static string Grouper(string? s)
+        private static string Grouper(string? s, NamingOptions namingOptions)
         {
             s ??= string.Empty;
+            if (VideoResolver.TryCleanString(s, namingOptions, out var newName))
+            {
+                s = newName;
+            }
             var idx = s.LastIndexOf(" -", StringComparison.Ordinal); // name doesn't come in with trailing space
             return idx == -1 ? s : s[..idx];
         }
@@ -193,7 +197,7 @@ namespace Emby.Naming.Video
             if (episodeInfo is not null)
             {
                 // if an episode, is eligible unless grouper == seriesname == folder
-                var g = Grouper(testFilename.ToString());
+                var g = Grouper(testFilename.ToString(), namingOptions);
                 return !(g.Equals(episodeInfo.SeriesName, StringComparison.OrdinalIgnoreCase) && g.AsSpan().Equals(folderName, StringComparison.OrdinalIgnoreCase));
             }
 
