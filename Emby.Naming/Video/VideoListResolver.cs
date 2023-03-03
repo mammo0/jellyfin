@@ -162,9 +162,11 @@ namespace Emby.Naming.Video
             if (VideoResolver.TryCleanString(s, namingOptions, out var newName))
             {
                 s = newName;
+            } else {
+                var idx = s.LastIndexOf(" -", StringComparison.Ordinal); // name doesn't come in with trailing space
+                s = idx == -1 ? s : s[..idx];
             }
-            var idx = s.LastIndexOf(" -", StringComparison.Ordinal); // name doesn't come in with trailing space
-            return idx == -1 ? s : s[..idx];
+            return s;
         }
 
         private static bool HaveSameYear(IReadOnlyList<VideoInfo> videos)

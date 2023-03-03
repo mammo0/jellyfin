@@ -404,13 +404,16 @@ namespace Jellyfin.Naming.Tests.Video
                 @"/TV/Dexter/Dexter - S01E03 Three.mkv",
                 @"/TV/Dexter/Dexter - S01E04 Four.mkv",
                 @"/TV/Dexter/Dexter - S01E05 Five.mkv",
+                @"/TV/Star Trek- Picard/Season 3/Star Trek - Picard 3x01 [WEBDL-720p Proper x264][EAC3 5.1] - Part One - The Next Generation.mkv",
+                @"/TV/Star Trek- Picard/Season 3/Star Trek - Picard 3x02 [WEBDL-720p Proper x264][EAC3 5.1] - Part Two - Disengage.mkv",
+                @"/TV/Star Trek- Picard/Season 3/Star Trek - Picard 3x03 [WEBDL-720p x264][EAC3 5.1] - Part Three - Seventeen Seconds.mkv",
             };
 
             var result = VideoListResolver.Resolve(
                 files.Select(i => VideoResolver.Resolve(i, false, _namingOptions, false)).OfType<VideoFileInfo>().ToList(),
                 _namingOptions).ToList();
 
-            Assert.Equal(5, result.Count);
+            Assert.Equal(8, result.Count);
             Assert.Empty(result[0].AlternateVersions);
         }
 
