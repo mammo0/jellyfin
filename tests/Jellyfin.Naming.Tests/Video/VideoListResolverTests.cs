@@ -67,6 +67,87 @@ namespace Jellyfin.Naming.Tests.Video
         }
 
         [Fact]
+        public void TestTVStackAndExtras()
+        {
+            // No stacking here because there is no part/disc/etc
+            var files = new[]
+            {
+                @"/TV/Grey's Anatomy (2005)/Grey's Anatomy (2005) - s01e01 - pt1.avi",
+                @"/TV/Grey's Anatomy (2005)/Grey's Anatomy (2005) - s01e01 - pt2.avi",
+                @"/TV/Grey's Anatomy (2005)/Grey's Anatomy (2005) - s01e02 - The First Cut is the Deepest.avi",
+                @"/TV/Grey's Anatomy (2005)/Grey's Anatomy (2005) - s01e03.mp4",
+                @"/TV/Grey's Anatomy (2005)/Grey's Anatomy (2005) - s01e04 - Aired Version.mp4",
+                @"/TV/Grey's Anatomy (2005)/Grey's Anatomy (2005) - s01e04 - Uncensored Version.mp4"
+            };
+
+            var result = VideoListResolver.Resolve(
+                files.Select(i => VideoResolver.Resolve(i, false, _namingOptions, false)).OfType<VideoFileInfo>().ToList(),
+                _namingOptions).ToList();
+
+            Assert.Equal(4, result.Count);
+
+            var s01e01 = result.FirstOrDefault(x => string.Equals(x.Name, "Grey's Anatomy (2005) - s01e01", StringComparison.Ordinal));
+            Assert.NotNull(s01e01);
+            Assert.Equal(2, s01e01!.Files.Count);
+
+            var s01e04 = result.FirstOrDefault(x => string.Equals(x.Name, "Grey's Anatomy (2005) - s01e04", StringComparison.Ordinal));
+            Assert.NotNull(s01e04);
+            Assert.Equal(1, s01e04!.AlternateVersions.Count);
+        }
+
+        [Fact]
+        public void TestTVStackAndExtrasNoFirstDash()
+        {
+            // No stacking here because there is no part/disc/etc
+            var files = new[]
+            {
+                @"/TV/Grey's Anatomy (2005)/Grey's Anatomy (2005) s01e01 - pt1.avi",
+                @"/TV/Grey's Anatomy (2005)/Grey's Anatomy (2005) s01e01 - pt2.avi",
+                @"/TV/Grey's Anatomy (2005)/Grey's Anatomy (2005) s01e02 - The First Cut is the Deepest.avi",
+                @"/TV/Grey's Anatomy (2005)/Grey's Anatomy (2005) s01e03.mp4",
+                @"/TV/Grey's Anatomy (2005)/Grey's Anatomy (2005) s01e04 - Aired Version.mp4",
+                @"/TV/Grey's Anatomy (2005)/Grey's Anatomy (2005) s01e04 - Uncensored Version.mp4"
+            };
+
+            var result = VideoListResolver.Resolve(
+                files.Select(i => VideoResolver.Resolve(i, false, _namingOptions, false)).OfType<VideoFileInfo>().ToList(),
+                _namingOptions).ToList();
+
+            Assert.Equal(4, result.Count);
+
+            var s01e01 = result.FirstOrDefault(x => string.Equals(x.Name, "Grey's Anatomy (2005) s01e01", StringComparison.Ordinal));
+            Assert.NotNull(s01e01);
+            Assert.Equal(2, s01e01!.Files.Count);
+
+            var s01e04 = result.FirstOrDefault(x => string.Equals(x.Name, "Grey's Anatomy (2005) s01e04", StringComparison.Ordinal));
+            Assert.NotNull(s01e04);
+            Assert.Equal(1, s01e04!.AlternateVersions.Count);
+        }
+
+        [Fact]
+        public void TestTVStack()
+        {
+            // No stacking here because there is no part/disc/etc
+            var files = new[]
+            {
+                @"/TV/Doctor Who/Season 21/Doctor Who 21x11 - Resurrection of the Daleks - Part 1.mkv",
+                @"/TV/Doctor Who/Season 21/Doctor Who 21x11 - Resurrection of the Daleks - Part 2.mkv",
+                @"/TV/Doctor Who/Season 21/Doctor Who 21x12 - Resurrection of the Daleks - Part 3.mkv",
+                @"/TV/Doctor Who/Season 21/Doctor Who 21x12 - Resurrection of the Daleks - Part 4.mkv"
+            };
+
+            var result = VideoListResolver.Resolve(
+                files.Select(i => VideoResolver.Resolve(i, false, _namingOptions, false)).OfType<VideoFileInfo>().ToList(),
+                _namingOptions).ToList();
+
+            Assert.Equal(2, result.Count);
+
+            var s21e12 = result.FirstOrDefault(x => string.Equals(x.Name, "Doctor Who 21x12 - Resurrection of the Daleks", StringComparison.Ordinal));
+            Assert.NotNull(s21e12);
+            Assert.Equal(2, s21e12!.Files.Count);
+        }
+
+        [Fact]
         public void TestWithMetadata()
         {
             var files = new[]

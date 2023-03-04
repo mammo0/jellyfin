@@ -73,6 +73,12 @@ namespace Emby.Naming.Video
                 var info = new VideoInfo(media.Name) { Files = new[] { media } };
 
                 info.Year = info.Files[0].Year;
+                if (info.Year is null)
+                {
+                    // parse name for year info. Episodes don't get parsed up to this point for year info
+                    var info2 = VideoResolver.Resolve(media.Path, media.IsDirectory, namingOptions, parseName);
+                    info.Year = info2?.Year;
+                }
                 list.Add(info);
             }
 
