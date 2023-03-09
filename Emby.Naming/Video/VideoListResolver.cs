@@ -79,6 +79,7 @@ namespace Emby.Naming.Video
                     var info2 = VideoResolver.Resolve(media.Path, media.IsDirectory, namingOptions, parseName);
                     info.Year = info2?.Year;
                 }
+
                 list.Add(info);
             }
 
@@ -133,7 +134,7 @@ namespace Emby.Naming.Video
                 }
             }
 
-            var groupedList = mergeable.GroupBy(x=> Grouper(x.Name, namingOptions)).ToList();
+            var groupedList = mergeable.GroupBy(x => Grouper(x.Name, namingOptions)).ToList();
             // take grouping list and make List<VideoInfo>
             var list = new List<VideoInfo>();
             foreach (var grouping in groupedList)
@@ -148,6 +149,7 @@ namespace Emby.Naming.Video
                     var alt = grouping.ElementAt(i + 1);
                     alternateVersions[i] = alt.Files[0];
                 }
+
                 if (alternateVersionsLen > 0)
                 {
                     video.AlternateVersions = alternateVersions;
@@ -168,10 +170,13 @@ namespace Emby.Naming.Video
             if (VideoResolver.TryCleanString(s, namingOptions, out var newName))
             {
                 s = newName;
-            } else {
+            }
+            else
+            {
                 var idx = s.LastIndexOf(" -", StringComparison.Ordinal); // name doesn't come in with trailing space
                 s = idx == -1 ? s : s[..idx];
             }
+
             return s;
         }
 
