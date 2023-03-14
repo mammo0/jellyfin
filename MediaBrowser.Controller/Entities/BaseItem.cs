@@ -1186,8 +1186,8 @@ namespace MediaBrowser.Controller.Entities
 
                     if (fileName == displayName)
                     {
-                        // file does not start with parent folder name. This must be an episode in a mixed directory
-                        // get string after last dash - this is the version name
+                        // File does not start with parent folder name. This must be an episode in a mixed directory
+                        // Get string after last dash - this is the version name
                         displayName = fileName.Substring(fileName.LastIndexOf('-') + 1).TrimStart(new char[] { ' ', '-' });
                     }
 
