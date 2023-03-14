@@ -91,7 +91,7 @@ namespace Emby.Naming.Video
                 info.Year = info.Files[0].Year;
                 if (info.Year is null)
                 {
-                    // parse name for year info. Episodes don't get parsed up to this point for year info
+                    // Parse name for year info. Episodes don't get parsed up to this point for year info.
                     var info2 = VideoResolver.Resolve(media.Path, media.IsDirectory, namingOptions, parseName);
                     info.Year = info2?.Year;
                 }
@@ -141,8 +141,8 @@ namespace Emby.Naming.Video
                     continue;
                 }
 
-                // don't merge stacked episodes
-                if (video.Files.Count() == 1 && IsEligibleForMultiVersion(folderName, video.Files[0].Path, namingOptions, collectionType))
+                // Don't merge stacked episodes
+                if (video.Files.Count == 1 && IsEligibleForMultiVersion(folderName, video.Files[0].Path, namingOptions, collectionType))
                 {
                     mergeable.Add(video);
                 }
@@ -166,12 +166,12 @@ namespace Emby.Naming.Video
                     list.Add(OrganizeAlternateVersions(grouping.ToList(), grouping.Key.AsSpan(), primary));
                 }
             }
-            else if (mergeable.Count() > 0)
+            else if (mergeable.Count > 0)
             {
                 list.Add(OrganizeAlternateVersions(mergeable, folderName, primary));
             }
 
-            // add non mergeables back in
+            // Add non mergeables back in
             list.AddRange(notMergeable);
             list.Sort((x, y) => string.Compare(x.Name, y.Name, StringComparison.Ordinal));
 
@@ -187,7 +187,7 @@ namespace Emby.Naming.Video
             }
 
             var alternateVersions = new List<VideoInfo>();
-            if (grouping.Count() > 1)
+            if (grouping.Count > 1)
             {
                 // groups resolution based into one, and all other names
                 var groups = grouping.GroupBy(x => ResolutionRegex().IsMatch(x.Files[0].FileNameWithoutExtension));
@@ -239,7 +239,7 @@ namespace Emby.Naming.Video
 
             if (collectionType.Equals(CollectionType.TvShows, StringComparison.OrdinalIgnoreCase))
             {
-                // episodes are always eligible to be grouped
+                // Episodes are always eligible to be grouped
                 return true;
             }
 
@@ -268,13 +268,13 @@ namespace Emby.Naming.Video
 
         private static string EpisodeGrouper(string testFilePath, NamingOptions namingOptions, ReadOnlySpan<char> collectionType)
         {
-            // grouper for tv shows/episodes should be everything before space-dash-space
+            // Grouper for tv shows/episodes should be everything before space-dash-space
             var resolver = new EpisodeResolver(namingOptions);
             EpisodeInfo? episodeInfo = resolver.Resolve(testFilePath, false);
             ReadOnlySpan<char> seriesName = episodeInfo!.SeriesName;
 
             var filename = Path.GetFileNameWithoutExtension(testFilePath);
-            // start with grouping by filename
+            // Start with grouping by filename
             string g = filename;
             for (var i = 0; i < namingOptions.VideoVersionRegexes.Length; i++)
             {
@@ -286,13 +286,13 @@ namespace Emby.Naming.Video
                 }
 
                 g = match.Groups["filename"].Value;
-                // clean the filename
+                // Clean the filename
                 if (VideoResolver.TryCleanString(g, namingOptions, out string newName))
                 {
                     g = newName;
                 }
 
-                // never group episodes under series name
+                // Never group episodes under series name
                 if (MemoryExtensions.Equals(g.AsSpan(), seriesName, StringComparison.OrdinalIgnoreCase))
                 {
                     g = filename;
