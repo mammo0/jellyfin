@@ -429,7 +429,9 @@ namespace Jellyfin.Naming.Tests.Video
                 _namingOptions,
                 CollectionType.Movies).ToList();
 
-            Assert.Single(result);
+            // The result should contain two individual movies
+            // Version grouping should not work here, because the files are not in a directory with the name 'Four Sisters and a Wedding'
+            Assert.Equal(2, result.Count);
         }
 
         [Fact]
