@@ -5,6 +5,7 @@ using System.Linq;
 using System.Text.RegularExpressions;
 using Emby.Naming.Common;
 using Emby.Naming.TV;
+using Jellyfin.Data.Enums;
 using Jellyfin.Extensions;
 using MediaBrowser.Model.Entities;
 using MediaBrowser.Model.IO;
@@ -34,7 +35,7 @@ namespace Emby.Naming.Video
         public static IReadOnlyList<VideoInfo> Resolve(
             IReadOnlyList<VideoFileInfo> videoInfos,
             NamingOptions namingOptions,
-            string collectionType,
+            CollectionType? collectionType,
             bool supportMultiVersion = true,
             bool parseName = true)
         {
@@ -113,7 +114,7 @@ namespace Emby.Naming.Video
             return list;
         }
 
-        private static List<VideoInfo> GetVideosGroupedByVersion(List<VideoInfo> videos, NamingOptions namingOptions, string collectionType)
+        private static List<VideoInfo> GetVideosGroupedByVersion(List<VideoInfo> videos, NamingOptions namingOptions, CollectionType? collectionType)
         {
             if (videos.Count == 0)
             {
@@ -156,9 +157,9 @@ namespace Emby.Naming.Video
             }
 
             var list = new List<VideoInfo>();
-            if (collectionType.Equals(CollectionType.TvShows, StringComparison.OrdinalIgnoreCase))
+            if (collectionType.Equals(CollectionType.tvshows))
             {
-                var groupedList = mergeable.GroupBy(x => EpisodeGrouper(x.Files[0].Path, namingOptions, collectionType));
+                var groupedList = mergeable.GroupBy(x => EpisodeGrouper(x.Files[0].Path, namingOptions));
                 foreach (var grouping in groupedList)
                 {
                     list.Add(OrganizeAlternateVersions(grouping.ToList(), grouping.Key.AsSpan(), primary));
@@ -229,11 +230,11 @@ namespace Emby.Naming.Video
             return true;
         }
 
-        private static bool IsEligibleForMultiVersion(ReadOnlySpan<char> folderName, ReadOnlySpan<char> testFilePath, NamingOptions namingOptions, ReadOnlySpan<char> collectionType)
+        private static bool IsEligibleForMultiVersion(ReadOnlySpan<char> folderName, ReadOnlySpan<char> testFilePath, NamingOptions namingOptions, CollectionType? collectionType)
         {
             var testFilename = Path.GetFileNameWithoutExtension(testFilePath);
 
-            if (collectionType.Equals(CollectionType.TvShows, StringComparison.OrdinalIgnoreCase))
+            if (collectionType.Equals(CollectionType.tvshows))
             {
                 // Episodes are always eligible to be grouped
                 return true;
@@ -262,7 +263,7 @@ namespace Emby.Naming.Video
                    || CheckMultiVersionRegex().IsMatch(testFilename);
         }
 
-        private static string EpisodeGrouper(string testFilePath, NamingOptions namingOptions, ReadOnlySpan<char> collectionType)
+        private static string EpisodeGrouper(string testFilePath, NamingOptions namingOptions)
         {
             // Grouper for tv shows/episodes should be everything before space-dash-space
             var resolver = new EpisodeResolver(namingOptions);
