@@ -1189,8 +1189,9 @@ namespace MediaBrowser.Controller.MediaEncoding
             {
                 var tmpConcatPath = Path.Join(_configurationManager.GetTranscodePath(), state.MediaSource.Id + ".concat");
                 _mediaEncoder.GenerateConcatConfig(state.MediaSource, tmpConcatPath);
-                arg.Append(" -f concat -safe 0 -i ")
-                    .Append(tmpConcatPath);
+                arg.Append(" -f concat -safe 0 -i \"")
+                    .Append(tmpConcatPath)
+                    .Append("\" ");
             }
             else
             {
@@ -2320,7 +2321,11 @@ namespace MediaBrowser.Controller.MediaEncoding
             if (request.VideoBitRate.HasValue
                 && (!videoStream.BitRate.HasValue || videoStream.BitRate.Value > request.VideoBitRate.Value))
             {
-                return false;
+                // For LiveTV that has no bitrate, let's try copy if other conditions are met
+                if (string.IsNullOrWhiteSpace(request.LiveStreamId) || videoStream.BitRate.HasValue)
+                {
+                    return false;
+                }
             }
 
             var maxBitDepth = state.GetRequestedVideoBitDepth(videoStream.Codec);
