@@ -371,11 +371,20 @@ namespace MediaBrowser.Providers.Manager
                     }
                     catch (FileNotFoundException)
                     {
-                        // nothing to do, already gone
+                        // Nothing to do, already gone
                     }
                     catch (UnauthorizedAccessException ex)
                     {
                         _logger.LogWarning(ex, "Unable to delete {Image}", image.Path);
+                    }
+                    finally
+                    {
+                        // Always remove empty parent folder
+                        var folder = Path.GetDirectoryName(image.Path);
+                        if (Directory.Exists(folder) && !_fileSystem.GetFiles(folder).Any())
+                        {
+                            Directory.Delete(folder);
+                        }
                     }
                 }
             }
@@ -419,7 +428,8 @@ namespace MediaBrowser.Providers.Manager
                 var type = _singularImages[i];
                 var image = GetFirstLocalImageInfoByType(images, type);
 
-                if (image is not null)
+                // Only use local images if we are not replacing and saving
+                if (image is not null && !(item.IsSaveLocalMetadataEnabled() && refreshOptions.ReplaceAllImages))
                 {
                     var currentImage = item.GetImageInfo(type, 0);
                     // if image file is stored with media, don't replace that later
