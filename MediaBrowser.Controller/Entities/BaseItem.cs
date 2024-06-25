@@ -1957,13 +1957,14 @@ namespace MediaBrowser.Controller.Entities
                 return;
             }
 
-            // Remove it from the item
-            RemoveImage(info);
-
+            // Remove from file system
             if (info.IsLocalFile)
             {
                 FileSystem.DeleteFile(info.Path);
             }
+
+            // Remove from item
+            RemoveImage(info);
 
             await UpdateToRepositoryAsync(ItemUpdateType.ImageUpdate, CancellationToken.None).ConfigureAwait(false);
         }
