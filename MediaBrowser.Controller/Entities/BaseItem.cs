@@ -1180,36 +1180,29 @@ namespace MediaBrowser.Controller.Entities
             return info;
         }
 
-        private string GetMediaSourceName(BaseItem item)
+        internal string GetMediaSourceName(BaseItem item)
         {
             var terms = new List<string>();
 
             var path = item.Path;
             if (item.IsFileProtocol && !string.IsNullOrEmpty(path))
             {
+                var displayName = System.IO.Path.GetFileNameWithoutExtension(path);
                 if (HasLocalAlternateVersions)
                 {
-                    var fileName = System.IO.Path.GetFileNameWithoutExtension(path);
-                    var displayName = fileName
-                        .Replace(System.IO.Path.GetFileName(ContainingFolderPath), string.Empty, StringComparison.OrdinalIgnoreCase)
-                        .TrimStart(new char[] { ' ', '-' });
-
-                    if (fileName == displayName)
+                    var containingFolderName = System.IO.Path.GetFileName(ContainingFolderPath);
+                    if (displayName.Length > containingFolderName.Length && displayName.StartsWith(containingFolderName, StringComparison.OrdinalIgnoreCase))
                     {
-                        // File does not start with parent folder name. This must be an episode in a mixed directory
-                        // Get string after last dash - this is the version name
-                        displayName = fileName.Substring(fileName.LastIndexOf('-') + 1).TrimStart(new char[] { ' ', '-' });
-                    }
-
-                    if (!string.IsNullOrEmpty(displayName))
-                    {
-                        terms.Add(displayName);
+                        var name = displayName.AsSpan(containingFolderName.Length).TrimStart([' ', '-']);
+                        if (!name.IsWhiteSpace())
+                        {
+                            terms.Add(name.ToString());
+                        }
                     }
                 }
 
                 if (terms.Count == 0)
                 {
-                    var displayName = System.IO.Path.GetFileNameWithoutExtension(path);
                     terms.Add(displayName);
                 }
             }
