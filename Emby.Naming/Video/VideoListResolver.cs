@@ -5,6 +5,7 @@ using System.Linq;
 using System.Text.RegularExpressions;
 using Emby.Naming.Common;
 using Emby.Naming.TV;
+using Jellyfin.Data.Enums;
 using Jellyfin.Extensions;
 using MediaBrowser.Model.Entities;
 using MediaBrowser.Model.IO;
@@ -32,7 +33,7 @@ namespace Emby.Naming.Video
         /// <param name="parseName">Whether to parse the name or use the filename.</param>
         /// <param name="libraryRoot">Top-level folder for the containing library.</param>
         /// <returns>Returns enumerable of <see cref="VideoInfo"/> which groups files together when related.</returns>
-        public static IReadOnlyList<VideoInfo> Resolve(IReadOnlyList<VideoFileInfo> videoInfos, NamingOptions namingOptions, string collectionType, bool supportMultiVersion = true, bool parseName = true, string? libraryRoot = "")
+        public static IReadOnlyList<VideoInfo> Resolve(IReadOnlyList<VideoFileInfo> videoInfos, NamingOptions namingOptions, CollectionType? collectionType, bool supportMultiVersion = true, bool parseName = true, string? libraryRoot = "")
         {
             // Filter out all extras, otherwise they could cause stacks to not be resolved
             // See the unit test TestStackedWithTrailer
@@ -109,7 +110,7 @@ namespace Emby.Naming.Video
             return list;
         }
 
-        private static List<VideoInfo> GetVideosGroupedByVersion(List<VideoInfo> videos, NamingOptions namingOptions, string collectionType)
+        private static List<VideoInfo> GetVideosGroupedByVersion(List<VideoInfo> videos, NamingOptions namingOptions, CollectionType? collectionType)
         {
             if (videos.Count == 0)
             {
@@ -152,7 +153,7 @@ namespace Emby.Naming.Video
             }
 
             var list = new List<VideoInfo>();
-            if (collectionType.Equals(CollectionType.TvShows, StringComparison.OrdinalIgnoreCase))
+            if (collectionType.Equals(CollectionType.tvshows))
             {
                 var groupedList = mergeable.GroupBy(x => EpisodeGrouper(x.Files[0].Path, namingOptions, collectionType));
                 foreach (var grouping in groupedList)
@@ -227,11 +228,11 @@ namespace Emby.Naming.Video
             return true;
         }
 
-        private static bool IsEligibleForMultiVersion(ReadOnlySpan<char> folderName, ReadOnlySpan<char> testFilePath, NamingOptions namingOptions, ReadOnlySpan<char> collectionType)
+        private static bool IsEligibleForMultiVersion(ReadOnlySpan<char> folderName, ReadOnlySpan<char> testFilePath, NamingOptions namingOptions, CollectionType? collectionType)
         {
             var testFilename = Path.GetFileNameWithoutExtension(testFilePath);
 
-            if (collectionType.Equals(CollectionType.TvShows, StringComparison.OrdinalIgnoreCase))
+            if (collectionType.Equals(CollectionType.tvshows))
             {
                 // Episodes are always eligible to be grouped
                 return true;
@@ -260,11 +261,11 @@ namespace Emby.Naming.Video
                    || CheckMultiVersionRegex().IsMatch(testFilename);
         }
 
-        private static string EpisodeGrouper(string testFilePath, NamingOptions namingOptions, ReadOnlySpan<char> collectionType)
+        private static string EpisodeGrouper(string testFilePath, NamingOptions namingOptions, CollectionType? collectionType)
         {
             // Grouper for tv shows/episodes should be everything before space-dash-space
             var resolver = new EpisodeResolver(namingOptions);
-            EpisodeInfo? episodeInfo = resolver.Resolve(testFilePath, false);
+            var episodeInfo = resolver.Resolve(testFilePath, false);
             ReadOnlySpan<char> seriesName = episodeInfo!.SeriesName;
 
             var filename = Path.GetFileNameWithoutExtension(testFilePath);
