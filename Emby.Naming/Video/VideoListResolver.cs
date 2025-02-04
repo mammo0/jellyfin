@@ -155,7 +155,7 @@ namespace Emby.Naming.Video
             var list = new List<VideoInfo>();
             if (collectionType.Equals(CollectionType.tvshows))
             {
-                var groupedList = mergeable.GroupBy(x => EpisodeGrouper(x.Files[0].Path, namingOptions, collectionType));
+                var groupedList = mergeable.GroupBy(x => EpisodeGrouper(x.Files[0].Path, namingOptions));
                 foreach (var grouping in groupedList)
                 {
                     list.Add(OrganizeAlternateVersions(grouping.ToList(), grouping.Key.AsSpan(), primary));
@@ -261,7 +261,7 @@ namespace Emby.Naming.Video
                    || CheckMultiVersionRegex().IsMatch(testFilename);
         }
 
-        private static string EpisodeGrouper(string testFilePath, NamingOptions namingOptions, CollectionType? collectionType)
+        private static string EpisodeGrouper(string testFilePath, NamingOptions namingOptions)
         {
             // Grouper for tv shows/episodes should be everything before space-dash-space
             var resolver = new EpisodeResolver(namingOptions);
