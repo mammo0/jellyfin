@@ -1010,7 +1010,7 @@ namespace MediaBrowser.Providers.Manager
                 }
             }
 
-            if (replaceData || !target.PremiereDate.HasValue)
+            if (replaceData || !target.PremiereDate.HasValue || (IsYearOnlyDate(target.PremiereDate.Value) && source.PremiereDate.HasValue))
             {
                 target.PremiereDate = source.PremiereDate;
             }
@@ -1142,6 +1142,8 @@ namespace MediaBrowser.Providers.Manager
             }
         }
 
+        private static bool IsYearOnlyDate(DateTime date) => date.Month == 1 && date.Day == 1;
+
         private static void MergePeople(List<PersonInfo> source, List<PersonInfo> target)
         {
             if (target is null)
@@ -1149,13 +1151,24 @@ namespace MediaBrowser.Providers.Manager
                 target = new List<PersonInfo>();
             }
 
-            foreach (var person in target)
-            {
-                var normalizedName = person.Name.RemoveDiacritics();
-                var personInSource = source.FirstOrDefault(i => string.Equals(i.Name.RemoveDiacritics(), normalizedName, StringComparison.OrdinalIgnoreCase));
+            var sourceByName = source.ToLookup(p => p.Name.RemoveDiacritics(), StringComparer.OrdinalIgnoreCase);
+            var targetByName = target.ToLookup(p => p.Name.RemoveDiacritics(), StringComparer.OrdinalIgnoreCase);
 
-                if (personInSource is not null)
+            foreach (var name in targetByName.Select(g => g.Key))
+            {
+                var targetPeople = targetByName[name].ToArray();
+                var sourcePeople = sourceByName[name].ToArray();
+
+                if (sourcePeople.Length == 0)
                 {
+                    continue;
+                }
+
+                for (int i = 0; i < targetPeople.Length; i++)
+                {
+                    var person = targetPeople[i];
+                    var personInSource = i < sourcePeople.Length ? sourcePeople[i] : sourcePeople[0];
+
                     foreach (var providerId in personInSource.ProviderIds)
                     {
                         person.ProviderIds.TryAdd(providerId.Key, providerId.Value);
@@ -1164,6 +1177,16 @@ namespace MediaBrowser.Providers.Manager
                     if (string.IsNullOrWhiteSpace(person.ImageUrl))
                     {
                         person.ImageUrl = personInSource.ImageUrl;
+                    }
+
+                    if (!string.IsNullOrWhiteSpace(personInSource.Role) && string.IsNullOrWhiteSpace(person.Role))
+                    {
+                        person.Role = personInSource.Role;
+                    }
+
+                    if (personInSource.SortOrder.HasValue && !person.SortOrder.HasValue)
+                    {
+                        person.SortOrder = personInSource.SortOrder;
                     }
                 }
             }

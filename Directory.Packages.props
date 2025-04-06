@@ -22,7 +22,7 @@
     <PackageVersion Include="IDisposableAnalyzers" Version="4.0.8" />
     <PackageVersion Include="Jellyfin.XmlTv" Version="10.8.0" />
     <PackageVersion Include="libse" Version="4.0.8" />
-    <PackageVersion Include="LrcParser" Version="2024.0728.2" />
+    <PackageVersion Include="LrcParser" Version="2025.228.1" />
     <PackageVersion Include="MetaBrainz.MusicBrainz" Version="6.1.0" />
     <PackageVersion Include="Microsoft.AspNetCore.Authorization" Version="8.0.11" />
     <PackageVersion Include="Microsoft.AspNetCore.Mvc.Testing" Version="8.0.11" />
@@ -80,7 +80,7 @@
     <PackageVersion Include="System.Text.Json" Version="8.0.5" />
     <PackageVersion Include="System.Threading.Tasks.Dataflow" Version="8.0.1" />
     <PackageVersion Include="TagLibSharp" Version="2.3.0" />
-    <PackageVersion Include="z440.atl.core" Version="6.16.0" />
+    <PackageVersion Include="z440.atl.core" Version="6.20.0" />
     <PackageVersion Include="TMDbLib" Version="2.2.0" />
     <PackageVersion Include="UTF.Unknown" Version="2.5.1" />
     <PackageVersion Include="Xunit.Priority" Version="1.1.6" />
